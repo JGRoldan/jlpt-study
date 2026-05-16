@@ -2,8 +2,30 @@ import type { Metadata } from 'next'
 import './globals.css'
 
 export const metadata: Metadata = {
-	title: 'JLPT Flashcards',
-	description: 'Aprende japonés con repetición espaciada',
+	title: {
+		default: 'JLPT Flashcards',
+		template: '%s | JLPT Flashcards',
+	},
+	description: 'Aprende japonés JLPT N5/N4 con repetición espaciada, flashcards y quizzes',
+	keywords: ['JLPT', 'japonés', 'aprendizaje', 'N5', 'N4', 'flashcards', 'espaciado'],
+	authors: [{ name: 'JGRoldan' }],
+	openGraph: {
+		title: 'JLPT Flashcards',
+		description: 'Aprende japonés JLPT N5/N4 con repetición espaciada',
+		url: 'https://jlpt-flashcards.vercel.app',
+		siteName: 'JLPT Flashcards',
+		locale: 'es_ES',
+		type: 'website',
+	},
+	twitter: {
+		card: 'summary_large_image',
+		title: 'JLPT Flashcards',
+		description: 'Aprende japonés JLPT N5/N4 con repetición espaciada',
+	},
+	robots: {
+		index: true,
+		follow: true,
+	},
 	icons: {
 		icon: '/icon.svg',
 	},
