@@ -82,43 +82,21 @@ export async function getReviewStats(deviceId: string) {
   today.setHours(0, 0, 0, 0);
   const todayStr = today.toISOString();
 
-  const { data: pending } = await supabase
+  const { data: allReviews } = await supabase
     .from('reviews')
-    .select('id')
-    .eq('device_id', deviceId)
-    .lte('next_review', now);
-
-  const { data: total } = await supabase
-    .from('reviews')
-    .select('id')
+    .select('id, repetitions, next_review, last_review')
     .eq('device_id', deviceId);
 
-  const { data: todayReviews } = await supabase
-    .from('reviews')
-    .select('id, last_review')
-    .eq('device_id', deviceId)
-    .gte('last_review', todayStr);
-
-  const { data: nextReview } = await supabase
-    .from('reviews')
-    .select('next_review')
-    .eq('device_id', deviceId)
-    .gt('next_review', now)
-    .order('next_review', { ascending: true })
-    .limit(1);
-
-  const { data: learnedCount } = await supabase
-    .from('reviews')
-    .select('id')
-    .eq('device_id', deviceId)
-    .gte('repetitions', 1);
+  const pending = allReviews?.filter(r => new Date(r.next_review) <= new Date(now)).length ?? 0;
+  const learnedCount = allReviews?.filter(r => r.repetitions >= 1).length ?? 0;
+  const studiedToday = allReviews?.filter(r => r.last_review && new Date(r.last_review) >= new Date(todayStr)).length ?? 0;
 
   return {
-    pending: pending?.length ?? 0,
-    total: total?.length ?? 0,
-    studiedToday: todayReviews?.length ?? 0,
-    learned: learnedCount?.length ?? 0,
-    nextReviewDate: nextReview?.[0]?.next_review || null,
+    pending,
+    total: allReviews?.length ?? 0,
+    studiedToday,
+    learned: learnedCount,
+    nextReviewDate: null,
   };
 }
 
