@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useMemo, memo } from 'react';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { useDeviceId } from '@/hooks/useDeviceId';
@@ -8,6 +8,44 @@ import { supabase } from '@/lib/supabase';
 import type { Word } from '@/types';
 
 const PAGE_SIZE = 50;
+
+interface WordItemProps {
+  word: Word;
+}
+
+const WordItem = memo(function WordItem({ word }: WordItemProps) {
+  return (
+    <div className="flex justify-between items-start p-3 border-b hover:bg-gray-50">
+      <div>
+        <div className="flex gap-2 items-center">
+          <span className="font-bold text-lg">{word.word}</span>
+          <span className="text-gray-500">{word.kana}</span>
+          {word.jlpt_level && (
+            <span className="text-xs bg-blue-100 text-blue-700 px-1.5 py-0.5 rounded">
+              {word.jlpt_level}
+            </span>
+          )}
+        </div>
+        <p className="text-gray-600">{word.meaning_es}</p>
+        {word.example_jp && (
+          <p className="text-sm text-gray-400 mt-1">
+            例: {word.example_jp}
+          </p>
+        )}
+      </div>
+      <div className="text-right text-sm">
+        {(word.repetitions || 0) > 0 && (
+          <span className="text-green-600 font-bold">
+            {word.repetitions} rep{(word.repetitions || 0) > 1 ? 's' : ''}
+          </span>
+        )}
+        {word.category && (
+          <p className="text-xs text-gray-400">{word.category.name_es}</p>
+        )}
+      </div>
+    </div>
+  );
+});
 
 export default function VocabularyPage() {
   const deviceId = useDeviceId();
@@ -53,30 +91,25 @@ export default function VocabularyPage() {
     loadWords();
   }, [deviceId]);
 
-  useEffect(() => {
-    const filtered = allWords.filter(w => {
+  const filteredWords = useMemo(() => {
+    return allWords.filter(w => {
       const reps = w.repetitions || 0;
       if (filter === 'learned') return reps > 0;
       if (filter === 'new') return reps === 0;
       return true;
     });
-    setDisplayedWords(filtered.slice(0, PAGE_SIZE));
-    setHasMore(filtered.length > PAGE_SIZE);
   }, [filter, allWords]);
 
-  const loadMore = () => {
-    const filtered = allWords.filter(w => {
-      const reps = w.repetitions || 0;
-      if (filter === 'learned') return reps > 0;
-      if (filter === 'new') return reps === 0;
-      return true;
-    });
+  useEffect(() => {
+    setDisplayedWords(filteredWords.slice(0, PAGE_SIZE));
+    setHasMore(filteredWords.length > PAGE_SIZE);
+  }, [filteredWords]);
 
+const loadMore = () => {
     const currentLength = displayedWords.length;
-    const nextBatch = filtered.slice(currentLength, currentLength + PAGE_SIZE);
-    
+    const nextBatch = filteredWords.slice(currentLength, currentLength + PAGE_SIZE);
     setDisplayedWords(prev => [...prev, ...nextBatch]);
-    setHasMore(currentLength + nextBatch.length < filtered.length);
+    setHasMore(currentLength + nextBatch.length < filteredWords.length);
   };
 
   const learnedCount = allWords.filter(w => (w.repetitions || 0) > 0).length;
@@ -126,38 +159,7 @@ export default function VocabularyPage() {
 
       <div className="space-y-2">
         {displayedWords.map((word) => (
-          <div 
-            key={word.id}
-            className="flex items-center justify-between p-3 bg-gray-50 rounded-lg border"
-          >
-            <div className="flex-1">
-              <div className="flex items-center gap-2">
-                <span className="text-lg font-bold">{word.word}</span>
-                <span className="text-gray-500">{word.kana}</span>
-                {word.jlpt_level && (
-                  <span className="text-xs bg-blue-100 text-blue-700 px-1 rounded">
-                    {word.jlpt_level}
-                  </span>
-                )}
-              </div>
-              <p className="text-gray-600">{word.meaning_es}</p>
-              {word.example_jp && (
-                <p className="text-sm text-gray-400 mt-1">
-                  例: {word.example_jp}
-                </p>
-              )}
-            </div>
-            <div className="text-right text-sm">
-              {(word.repetitions || 0) > 0 && (
-                <span className="text-green-600 font-bold">
-                  {word.repetitions} rep{(word.repetitions || 0) > 1 ? 's' : ''}
-                </span>
-              )}
-              {word.category && (
-                <p className="text-xs text-gray-400">{word.category.name_es}</p>
-              )}
-            </div>
-          </div>
+          <WordItem key={word.id} word={word} />
         ))}
       </div>
 

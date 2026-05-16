@@ -57,6 +57,18 @@ export default function Home() {
           </Card>
         </Link>
 
+        <Link href="/quiz" className="block">
+          <Card className="h-full hover:bg-muted/50 transition-colors cursor-pointer">
+            <CardHeader className="text-center">
+              <CardTitle className="text-4xl" suppressHydrationWarning>❓</CardTitle>
+              <p className="font-semibold">Quiz</p>
+            </CardHeader>
+            <CardContent className="text-center">
+              <p className="text-sm text-muted-foreground">Elige la respuesta</p>
+            </CardContent>
+          </Card>
+        </Link>
+
         <Link href="/vocabulary" className="block">
           <Card className="h-full hover:bg-muted/50 transition-colors cursor-pointer">
             <CardHeader className="text-center">
