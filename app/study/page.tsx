@@ -20,7 +20,6 @@ export default function StudyPage() {
   const [words, setWords] = useState<Word[]>([]);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [loading, setLoading] = useState(true);
-  const [studiedCount, setStudiedCount] = useState(0);
   const [stats, setStats] = useState<Stats>({ pending: 0, total: 0, studiedToday: 0, learned: 0 });
   const [mode, setMode] = useState<'review' | 'new'>('review');
 
@@ -52,7 +51,7 @@ export default function StudyPage() {
         setWords([]);
       }
 
-      setStudiedCount(0);
+      // stats se reinician en loadData
     } catch (error) {
       console.error('Error loading data:', error);
     } finally {
@@ -76,9 +75,6 @@ export default function StudyPage() {
     if (!deviceId || !words[currentIndex]) return;
     try {
       await createOrUpdateReview(deviceId, words[currentIndex].id, quality);
-      if (quality >= 3) {
-        setStudiedCount((c) => c + 1);
-      }
       setStats(prev => ({
         ...prev,
         learned: quality >= 3 ? prev.learned + 1 : prev.learned,
@@ -147,7 +143,7 @@ export default function StudyPage() {
           </span>
         </div>
         <div className="text-sm text-muted-foreground">
-          {currentIndex + 1} / {words.length} • {studiedCount} correctas
+          {currentIndex + 1} / {words.length}
         </div>
       </div>
 
