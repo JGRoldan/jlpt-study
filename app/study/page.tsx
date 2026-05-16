@@ -39,6 +39,7 @@ export default function StudyPage() {
       ]);
 
       setStats(statsData);
+      setCurrentIndex(0);
 
       if (reviewsData.length > 0) {
         const reviewWords = reviewsData.map(r => r.word).filter(Boolean) as Word[];
@@ -50,8 +51,6 @@ export default function StudyPage() {
       } else {
         setWords([]);
       }
-
-      // stats se reinician en loadData
     } catch (error) {
       console.error('Error loading data:', error);
     } finally {
@@ -77,8 +76,6 @@ export default function StudyPage() {
       await createOrUpdateReview(deviceId, words[currentIndex].id, quality);
       setStats(prev => ({
         ...prev,
-        learned: quality >= 3 ? prev.learned + 1 : prev.learned,
-        pending: quality < 3 ? prev.pending + 1 : Math.max(0, prev.pending - 1),
         studiedToday: prev.studiedToday + 1
       }));
       goNext();
