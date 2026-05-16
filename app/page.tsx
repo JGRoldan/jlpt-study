@@ -24,33 +24,23 @@ export default function Home() {
       </header>
 
       <div className="grid gap-4 md:grid-cols-2 max-w-md mx-auto">
-        <Link href="/review" className="block">
+        <Link href="/study" className="block">
           <Card className="h-full hover:bg-muted/50 transition-colors cursor-pointer">
             <CardHeader className="text-center">
               <CardTitle className="text-4xl" suppressHydrationWarning>📚</CardTitle>
-              <p className="font-semibold">Review</p>
+              <p className="font-semibold">Estudiar</p>
             </CardHeader>
             <CardContent className="text-center">
               {loading ? (
                 <p className="text-muted-foreground">...</p>
               ) : stats.pending > 0 ? (
-                <p className="text-2xl font-bold">{stats.pending}</p>
+                <>
+                  <p className="text-2xl font-bold">{stats.pending}</p>
+                  <p className="text-sm text-muted-foreground">pendientes</p>
+                </>
               ) : (
                 <p className="text-muted-foreground">Sin pendientes</p>
               )}
-              <p className="text-sm text-muted-foreground">tarjetas</p>
-            </CardContent>
-          </Card>
-        </Link>
-
-        <Link href="/study" className="block">
-          <Card className="h-full hover:bg-muted/50 transition-colors cursor-pointer">
-            <CardHeader className="text-center">
-              <CardTitle className="text-4xl" suppressHydrationWarning>📖</CardTitle>
-              <p className="font-semibold">Estudiar</p>
-            </CardHeader>
-            <CardContent className="text-center">
-              <p className="text-sm text-muted-foreground">Flashcards</p>
             </CardContent>
           </Card>
         </Link>
