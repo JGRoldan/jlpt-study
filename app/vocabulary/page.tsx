@@ -125,18 +125,21 @@ const loadMore = () => {
 
   return (
     <div className="min-h-screen p-4 space-y-4">
-      <div className="flex justify-between items-center">
-        <Link href="/">
-          <Button variant="ghost" size="sm">
-            ← Volver
-          </Button>
-        </Link>
-        <h1 className="text-xl font-bold">Mi Vocabulario</h1>
-        <div className="flex gap-2">
+      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3">
+        <div className="flex items-center gap-2">
+          <Link href="/">
+            <Button variant="ghost" size="sm">
+              ← Volver
+            </Button>
+          </Link>
+          <h1 className="text-xl font-bold">Mi Vocabulario</h1>
+        </div>
+        <div className="flex gap-1 flex-wrap justify-center sm:justify-end">
           <Button
             size="sm"
             variant={filter === 'learned' ? 'default' : 'outline'}
             onClick={() => setFilter('learned')}
+            className="text-xs px-2"
           >
             Aprendidas ({learnedCount})
           </Button>
@@ -144,6 +147,7 @@ const loadMore = () => {
             size="sm"
             variant={filter === 'new' ? 'default' : 'outline'}
             onClick={() => setFilter('new')}
+            className="text-xs px-2"
           >
             Nuevas ({newCount})
           </Button>
@@ -151,6 +155,7 @@ const loadMore = () => {
             size="sm"
             variant={filter === 'all' ? 'default' : 'outline'}
             onClick={() => setFilter('all')}
+            className="text-xs px-2"
           >
             Todas ({allWords.length})
           </Button>
