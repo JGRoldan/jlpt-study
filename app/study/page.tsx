@@ -79,6 +79,12 @@ export default function StudyPage() {
       if (quality >= 3) {
         setStudiedCount((c) => c + 1);
       }
+      setStats(prev => ({
+        ...prev,
+        learned: quality >= 3 ? prev.learned + 1 : prev.learned,
+        pending: quality < 3 ? prev.pending + 1 : Math.max(0, prev.pending - 1),
+        studiedToday: prev.studiedToday + 1
+      }));
       goNext();
     } catch (error) {
       console.error('Error saving review:', error);
