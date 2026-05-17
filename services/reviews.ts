@@ -93,16 +93,18 @@ export async function getReviewStats(deviceId: string) {
 
   if (allReviews) {
     for (const r of allReviews) {
-      const nextReviewDate = r.next_review ? new Date(r.next_review) : null;
-      if (nextReviewDate && nextReviewDate <= now) {
-        pending++;
+      if (r.next_review) {
+        const nextDate = new Date(r.next_review);
+        if (nextDate.getTime() <= now.getTime()) {
+          pending++;
+        }
       }
       if (r.repetitions >= 1) {
         learnedCount++;
       }
       if (r.last_review) {
-        const lastReviewDate = new Date(r.last_review);
-        if (lastReviewDate >= today) {
+        const lastDate = new Date(r.last_review);
+        if (lastDate.getTime() >= today.getTime()) {
           studiedToday++;
         }
       }
