@@ -93,6 +93,18 @@ export default function Home() {
           </Card>
         </Link>
 
+        <Link href="/reviewed" className="block">
+          <Card className="h-full hover:bg-muted/50 transition-colors cursor-pointer">
+            <CardHeader className="text-center">
+              <CardTitle className="text-4xl" suppressHydrationWarning>✅</CardTitle>
+              <p className="font-semibold">Vistas</p>
+            </CardHeader>
+            <CardContent className="text-center">
+              <p className="text-sm text-muted-foreground">Palabras estudiadas</p>
+            </CardContent>
+          </Card>
+        </Link>
+
         <Link href="/stats" className="block md:col-span-2">
           <Card className="h-full hover:bg-muted/50 transition-colors cursor-pointer">
             <CardHeader className="text-center">
