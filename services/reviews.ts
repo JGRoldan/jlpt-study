@@ -24,9 +24,9 @@ export async function getReviewByWord(
     .select('*')
     .eq('device_id', deviceId)
     .eq('word_id', wordId)
-    .single();
+    .maybeSingle();
 
-  if (error && error.code !== 'PGRST116') throw error;
+  if (error) throw error;
   return data;
 }
 
