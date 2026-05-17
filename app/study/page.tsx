@@ -6,6 +6,7 @@ import { Flashcard } from '@/components/flashcard/flashcard';
 import { Button } from '@/components/ui/button';
 import { useDeviceId } from '@/hooks/useDeviceId';
 import { createOrUpdateReview, getReviewsForReview, getNewWords, getReviewStats } from '@/services/reviews';
+import { supabase } from '@/lib/supabase';
 import type { Quality, Word, Review } from '@/types';
 
 interface Stats {
@@ -32,8 +33,7 @@ export default function StudyPage() {
   const loadData = async () => {
     if (!deviceId) return;
     try {
-      const [reviewsData, statsData, newWordsData] = await Promise.all([
-        getReviewsForReview(deviceId),
+      const [statsData, newWordsData] = await Promise.all([
         getReviewStats(deviceId),
         getNewWords(deviceId)
       ]);
@@ -41,11 +41,24 @@ export default function StudyPage() {
       setStats(statsData);
       setCurrentIndex(0);
 
-      if (reviewsData.length > 0) {
-        const reviewWords = reviewsData.map(r => r.word).filter(Boolean) as Word[];
-        setWords(reviewWords);
-        setMode('review');
-      } else if (newWordsData.length > 0) {
+      if (statsData.pending > 0) {
+        const { data: pendingReviews } = await supabase
+          .from('reviews')
+          .select('*, word:words(*, category:categories(*))')
+          .eq('device_id', deviceId)
+          .lte('next_review', new Date().toISOString())
+          .order('next_review', { ascending: true })
+          .limit(20);
+
+        if (pendingReviews && pendingReviews.length > 0) {
+          const reviewWords = pendingReviews.map(r => r.word).filter(Boolean) as Word[];
+          setWords(reviewWords);
+          setMode('review');
+          return;
+        }
+      }
+
+      if (newWordsData.length > 0) {
         setWords(newWordsData);
         setMode('new');
       } else {
@@ -74,15 +87,21 @@ export default function StudyPage() {
     if (!deviceId || !words[currentIndex]) return;
     try {
       await createOrUpdateReview(deviceId, words[currentIndex].id, quality);
+      
+      if (quality < 3) {
+        setTimeout(() => loadData(), 100);
+      }
+      
       setStats(prev => {
         const newLearned = quality >= 3 ? prev.learned + 1 : prev.learned;
         const newTotal = prev.total + 1;
+        const newPending = quality < 3 ? prev.pending - 1 : prev.pending;
         return {
           ...prev,
           total: newTotal,
           learned: newLearned,
-          studiedToday: prev.studiedToday + 1,
-          pending: prev.pending
+          pending: Math.max(0, newPending),
+          studiedToday: prev.studiedToday + 1
         };
       });
       goNext();
