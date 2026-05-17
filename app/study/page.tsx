@@ -87,23 +87,10 @@ export default function StudyPage() {
     if (!deviceId || !words[currentIndex]) return;
     try {
       await createOrUpdateReview(deviceId, words[currentIndex].id, quality);
-      
-      if (quality < 3) {
-        setTimeout(() => loadData(), 100);
-      }
-      
-      setStats(prev => {
-        const newLearned = quality >= 3 ? prev.learned + 1 : prev.learned;
-        const newTotal = prev.total + 1;
-        const newPending = quality < 3 ? prev.pending - 1 : prev.pending;
-        return {
-          ...prev,
-          total: newTotal,
-          learned: newLearned,
-          pending: Math.max(0, newPending),
-          studiedToday: prev.studiedToday + 1
-        };
-      });
+      setStats(prev => ({
+        ...prev,
+        studiedToday: prev.studiedToday + 1
+      }));
       goNext();
     } catch (error) {
       console.error('Error saving review:', error);

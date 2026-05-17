@@ -77,7 +77,7 @@ export async function createOrUpdateReview(
 }
 
 export async function getReviewStats(deviceId: string) {
-  const now = new Date().toISOString();
+  const now = new Date();
   const today = new Date();
   today.setHours(0, 0, 0, 0);
   const todayStr = today.toISOString();
@@ -87,9 +87,27 @@ export async function getReviewStats(deviceId: string) {
     .select('id, repetitions, next_review, last_review')
     .eq('device_id', deviceId);
 
-  const pending = allReviews?.filter(r => new Date(r.next_review) <= new Date(now)).length ?? 0;
-  const learnedCount = allReviews?.filter(r => r.repetitions >= 1).length ?? 0;
-  const studiedToday = allReviews?.filter(r => r.last_review && new Date(r.last_review) >= new Date(todayStr)).length ?? 0;
+  let pending = 0;
+  let learnedCount = 0;
+  let studiedToday = 0;
+
+  if (allReviews) {
+    for (const r of allReviews) {
+      const nextReviewDate = r.next_review ? new Date(r.next_review) : null;
+      if (nextReviewDate && nextReviewDate <= now) {
+        pending++;
+      }
+      if (r.repetitions >= 1) {
+        learnedCount++;
+      }
+      if (r.last_review) {
+        const lastReviewDate = new Date(r.last_review);
+        if (lastReviewDate >= today) {
+          studiedToday++;
+        }
+      }
+    }
+  }
 
   return {
     pending,
