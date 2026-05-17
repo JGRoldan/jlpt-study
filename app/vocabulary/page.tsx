@@ -55,6 +55,7 @@ export default function VocabularyPage() {
   const [loadingMore, setLoadingMore] = useState(false);
   const [filter, setFilter] = useState<'all' | 'learned' | 'new'>('learned');
   const [hasMore, setHasMore] = useState(true);
+  const [search, setSearch] = useState('');
 
   useEffect(() => {
     if (!deviceId) return;
@@ -94,11 +95,17 @@ export default function VocabularyPage() {
   const filteredWords = useMemo(() => {
     return allWords.filter(w => {
       const reps = w.repetitions || 0;
-      if (filter === 'learned') return reps > 0;
-      if (filter === 'new') return reps === 0;
+      if (filter === 'learned' && reps === 0) return false;
+      if (filter === 'new' && reps > 0) return false;
+      if (search) {
+        const searchLower = search.toLowerCase();
+        return w.word?.toLowerCase().includes(searchLower) ||
+               w.kana?.toLowerCase().includes(searchLower) ||
+               w.meaning_es?.toLowerCase().includes(searchLower);
+      }
       return true;
     });
-  }, [filter, allWords]);
+  }, [filter, allWords, search]);
 
   useEffect(() => {
     setDisplayedWords(filteredWords.slice(0, PAGE_SIZE));
@@ -134,32 +141,39 @@ const loadMore = () => {
           </Link>
           <h1 className="text-xl font-bold">Mi Vocabulario</h1>
         </div>
-        <div className="flex gap-1 flex-wrap justify-center sm:justify-end">
-          <Button
-            size="sm"
-            variant={filter === 'learned' ? 'default' : 'outline'}
-            onClick={() => setFilter('learned')}
-            className="text-xs px-2"
-          >
-            Aprendidas ({learnedCount})
-          </Button>
-          <Button
-            size="sm"
-            variant={filter === 'new' ? 'default' : 'outline'}
-            onClick={() => setFilter('new')}
-            className="text-xs px-2"
-          >
-            Nuevas ({newCount})
-          </Button>
-          <Button
-            size="sm"
-            variant={filter === 'all' ? 'default' : 'outline'}
-            onClick={() => setFilter('all')}
-            className="text-xs px-2"
-          >
-            Todas ({allWords.length})
-          </Button>
-        </div>
+        <input
+          type="text"
+          placeholder="Buscar palabra..."
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          className="w-full sm:w-48 px-3 py-2 border rounded-lg text-sm"
+        />
+      </div>
+      <div className="flex gap-1 flex-wrap justify-center">
+        <Button
+          size="sm"
+          variant={filter === 'learned' ? 'default' : 'outline'}
+          onClick={() => setFilter('learned')}
+          className="text-xs px-2"
+        >
+          Aprendidas ({learnedCount})
+        </Button>
+        <Button
+          size="sm"
+          variant={filter === 'new' ? 'default' : 'outline'}
+          onClick={() => setFilter('new')}
+          className="text-xs px-2"
+        >
+          Nuevas ({newCount})
+        </Button>
+        <Button
+          size="sm"
+          variant={filter === 'all' ? 'default' : 'outline'}
+          onClick={() => setFilter('all')}
+          className="text-xs px-2"
+        >
+          Todas ({allWords.length})
+        </Button>
       </div>
 
       <div className="space-y-2">
